@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="light only" />
+  <meta name="supported-color-schemes" content="light" />
   <meta name="theme-color" content="#FAF7F2" />
   <title>KMA STUDIO — Crafting Culture, Redefining Artistry</title>
   <link rel="icon" type="image/png" href="images/brand-icon.png" />
@@ -34,7 +36,8 @@
             taupeSoft: '#F3ECE6'
           },
           boxShadow: {
-            art: '0 10px 32px -16px rgba(29, 28, 26, 0.14)',
+            art: '0 10px 30px rgba(29, 28, 26, 0.06)',
+            artHover: '0 16px 40px rgba(29, 28, 26, 0.10)',
             sticky: '0 -8px 26px -10px rgba(29, 28, 26, 0.12)'
           }
         }
@@ -43,10 +46,14 @@
   </script>
 
   <style>
-    html, body {
-      font-family: 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif;
+    :root, html, body {
+      color-scheme: light only;
       background-color: #FAF7F2;
       color: #1D1C1A;
+    }
+
+    html, body {
+      font-family: 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-tap-highlight-color: transparent;
       -webkit-font-smoothing: antialiased;
       font-size: 16px;
@@ -55,6 +62,37 @@
     /* Prevent iOS LINE/Safari auto-zoom on form focus */
     input, textarea, select {
       font-size: 16px;
+    }
+
+    /* Lock light surface & color swatches against forced dark mode inversion */
+    .kma-logo-pill {
+      background: #FFFFFF;
+      border: 1px solid rgba(160, 142, 131, 0.35);
+      border-radius: 12px;
+      padding: 6px 10px;
+      box-shadow: 0 2px 8px rgba(29, 28, 26, 0.06);
+      forced-color-adjust: none;
+    }
+
+    .kma-swatch-dot {
+      forced-color-adjust: none;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .kma-hero-wash {
+      background: linear-gradient(135deg, #FAF7F2 0%, #FDE9EB 65%, #F6ECE6 100%);
+      box-shadow: 0 12px 36px rgba(29, 28, 26, 0.06);
+      forced-color-adjust: none;
+    }
+
+    .kma-preorder-pill {
+      background: rgba(250, 247, 242, 0.94);
+      color: #1D1C1A;
+      border: 1px solid rgba(160, 142, 131, 0.32);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      forced-color-adjust: none;
     }
 
     .pb-safe {
@@ -94,11 +132,14 @@
         class="flex items-center gap-3 min-w-0 text-left group focus:outline-none"
         aria-label="กลับหน้าคอลเลกชัน KMA STUDIO"
       >
-        <img
-          src="images/brand-logo.png"
-          alt="KMA STUDIO"
-          class="h-9 sm:h-10 w-auto object-contain shrink-0"
-        />
+        <span class="kma-logo-pill inline-flex items-center justify-center shrink-0">
+          <img
+            src="./images/brand-logo.png"
+            alt="KMA STUDIO"
+            class="h-7 sm:h-8 w-auto object-contain block"
+            onerror="if(!this.dataset.fb){this.dataset.fb='1';this.src='./images/brand-icon.png';}"
+          />
+        </span>
         <div class="min-w-0">
           <div class="font-serif text-lg sm:text-xl font-semibold tracking-[0.14em] text-ink leading-none">
             KMA STUDIO
@@ -185,29 +226,81 @@
     </section>
 
     <!-- ==================== VIEW A: COLLECTION CATALOG ==================== -->
-    <section id="view-catalog" class="hidden space-y-6">
-      <!-- Compact Editorial Hero Banner -->
-      <div class="rounded-3xl bg-white border border-taupeLight px-5 py-7 sm:px-8 sm:py-9 shadow-art relative overflow-hidden">
-        <div class="absolute -top-12 -right-12 w-44 h-44 rounded-full bg-blush/70 blur-2xl pointer-events-none"></div>
-        <div class="relative z-10 max-w-xl space-y-2">
-          <p class="font-serif italic text-sm sm:text-base text-taupe tracking-wide">
-            Crafting Culture, Redefining Artistry
-          </p>
-          <h1 class="text-2xl sm:text-3xl font-semibold text-ink tracking-tight leading-snug">
+    <section id="view-catalog" class="hidden space-y-7">
+      <!-- Editorial Art Gallery Hero Banner -->
+      <div class="kma-hero-wash rounded-[28px] px-6 py-9 sm:px-10 sm:py-12 relative overflow-hidden">
+        <!-- Subtle Thai Contemporary Curved Line-Art Flourish (Top Right) -->
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 260 220"
+          fill="none"
+          class="pointer-events-none select-none absolute -top-4 -right-6 w-48 sm:w-64 h-auto opacity-30"
+        >
+          <path
+            d="M250 18C210 18 186 42 172 78C158 114 134 138 96 144C128 116 142 84 148 48C152 24 176 8 212 10"
+            stroke="#A08E83"
+            stroke-width="1.35"
+            stroke-linecap="round"
+          />
+          <path
+            d="M252 54C224 58 202 78 188 110C174 142 146 168 104 176C146 176 184 156 208 124C224 102 238 88 256 84"
+            stroke="#A08E83"
+            stroke-width="1.15"
+            stroke-linecap="round"
+          />
+          <path
+            d="M226 12C196 28 178 58 168 92C160 120 144 146 118 162"
+            stroke="#A08E83"
+            stroke-width="0.9"
+            stroke-dasharray="3 4"
+            stroke-linecap="round"
+          />
+          <circle cx="100" cy="144" r="3" fill="#A08E83" opacity="0.7" />
+        </svg>
+
+        <!-- Subtle Thai Contemporary Curved Line-Art Flourish (Bottom Left) -->
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 220 150"
+          fill="none"
+          class="pointer-events-none select-none absolute -bottom-6 -left-6 w-40 sm:w-52 h-auto opacity-25"
+        >
+          <path
+            d="M12 138C46 132 74 112 92 80C106 54 128 36 164 32C132 52 114 82 104 114C96 136 74 146 38 144"
+            stroke="#A08E83"
+            stroke-width="1.25"
+            stroke-linecap="round"
+          />
+          <path
+            d="M8 106C36 96 60 76 76 48C90 24 114 12 148 14"
+            stroke="#A08E83"
+            stroke-width="1"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        <div class="relative z-10 max-w-xl space-y-3">
+          <div class="inline-flex items-center gap-2.5">
+            <span class="w-6 h-px bg-taupe/70"></span>
+            <p class="font-serif text-xs sm:text-sm font-semibold tracking-[0.22em] uppercase text-taupe">
+              KMA STUDIO · OFFICIAL COLLECTION
+            </p>
+          </div>
+          <h1 class="text-2xl sm:text-4xl font-semibold text-ink tracking-tight leading-snug">
             สำรวจคอลเลกชัน KMA STUDIO
           </h1>
-          <p class="text-sm sm:text-base text-ink/75 leading-relaxed">
+          <p class="text-sm sm:text-base text-ink/80 leading-relaxed max-w-md">
             งานศิลป์ร่วมสมัยที่ถ่ายทอดแรงบันดาลใจจากวัฒนธรรมไทย
           </p>
         </div>
       </div>
 
-      <!-- 2 Visual Design Cards Grid -->
-      <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      <!-- 2 Gallery-Style Design Cards Grid -->
+      <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-7"></div>
 
       <!-- Subtle Studio Info Footer on Catalog -->
       <div class="pt-4 text-center space-y-1 text-xs text-taupe">
-        <p class="font-serif tracking-[0.14em] text-ink/80">KMA STUDIO</p>
+        <p class="font-serif tracking-[0.16em] text-ink/80">KMA STUDIO</p>
         <p>สอบถามข้อมูลเพิ่มเติม: kmastudio.th@gmail.com · LINE OA: @560rvliy</p>
       </div>
     </section>

@@ -137,13 +137,84 @@
   }
 
   // ==================== DESIGN / COLOR / SIZE NORMALIZATION ====================
+  function normalizeImageUrl(rawUrl) {
+    let url = String(rawUrl || '').trim().replace(/[\r\n\t]+/g, '');
+    if (!url) return '';
+    if (/^(https?:)?\/\//i.test(url) || /^data:/i.test(url)) {
+      return url;
+    }
+    url = url.replace(/^\.?\//, '').replace(/\/{2,}/g, '/');
+    return './' + url;
+  }
+
   function parseImageList(imageUrlStr) {
     return String(imageUrlStr || '')
       .split(',')
-      .map((u) => u.trim())
+      .map((s) => normalizeImageUrl(s))
       .filter(Boolean)
       .slice(0, 5);
   }
+
+  function swapJpgExtensionCase(url) {
+    if (/\.jpg(\?.*)?$/.test(url)) return url.replace(/\.jpg(\?.*)?$/, '.JPG$1');
+    if (/\.JPG(\?.*)?$/.test(url)) return url.replace(/\.JPG(\?.*)?$/, '.jpg$1');
+    return '';
+  }
+
+  function renderStyledImagePlaceholder(container, label) {
+    if (!container || container.querySelector('[data-kma-placeholder="1"]')) return;
+    const holder = document.createElement('div');
+    holder.setAttribute('data-kma-placeholder', '1');
+    holder.className =
+      'w-full h-full min-h-[160px] flex flex-col items-center justify-center text-center px-5 py-10 bg-ivory/70 text-taupe select-none';
+    holder.innerHTML =
+      '<span class="font-serif text-base tracking-[0.18em] text-ink/70 uppercase">KMA STUDIO</span>' +
+      '<span class="text-[11px] text-taupe mt-1">' +
+      escapeHtml(label || 'กำลังเตรียมภาพสินค้า') +
+      '</span>';
+    container.appendChild(holder);
+  }
+
+  // Defensive global image error handler: retries .jpg <-> .JPG once, optional V10 fallback once, then styled placeholder
+  window.kmaHandleImgError = function (imgEl) {
+    if (!imgEl) return;
+    const step = imgEl.getAttribute('data-img-step') || '0';
+    const currentSrc = imgEl.getAttribute('src') || '';
+    const fallbackSrc = imgEl.getAttribute('data-fallback-src') || '';
+
+    if (step === '0') {
+      const altCase = swapJpgExtensionCase(currentSrc);
+      if (altCase && altCase !== currentSrc) {
+        imgEl.setAttribute('data-img-step', '1');
+        imgEl.src = altCase;
+        return;
+      }
+      if (fallbackSrc && fallbackSrc !== currentSrc) {
+        imgEl.setAttribute('data-img-step', '2');
+        imgEl.src = fallbackSrc;
+        return;
+      }
+    } else if (step === '1') {
+      if (fallbackSrc && fallbackSrc !== currentSrc) {
+        imgEl.setAttribute('data-img-step', '2');
+        imgEl.src = fallbackSrc;
+        return;
+      }
+    } else if (step === '2') {
+      const altFallbackCase = swapJpgExtensionCase(currentSrc);
+      if (altFallbackCase && altFallbackCase !== currentSrc) {
+        imgEl.setAttribute('data-img-step', '3');
+        imgEl.src = altFallbackCase;
+        return;
+      }
+    }
+
+    // Final fallback: hide broken <img> cleanly so broken alt text never collides with badges
+    imgEl.onerror = null;
+    imgEl.style.display = 'none';
+    const stage = imgEl.closest('[data-img-stage]') || imgEl.parentElement;
+    renderStyledImagePlaceholder(stage, imgEl.getAttribute('data-placeholder-label') || 'กำลังเตรียมภาพสินค้า');
+  };
 
   function detectBaseDesignKey(raw) {
     const ref = String(raw.IP_Design_Ref || '').trim().toUpperCase();
@@ -344,10 +415,11 @@
         const cb = design.colors[colorCode];
         cb.skus.sort((a, b) => a.sizeRank - b.sizeRank);
 
-        // If Sheet didn't provide all 5 V10 jpgs or is empty, use approved V10 images for that design+color
-        const defaultImgs = meta.defaultImages && meta.defaultImages[colorCode];
-        if (cb.images.length === 0 && Array.isArray(defaultImgs)) {
-          cb.images = defaultImgs.slice(0, 5);
+        // Store normalized V10 default images as resilient fallback per color
+        const defaultImgs = (meta.defaultImages && meta.defaultImages[colorCode] || []).map((u) => normalizeImageUrl(u));
+        cb.fallbackImages = defaultImgs.slice(0, 5);
+        if (cb.images.length === 0 && cb.fallbackImages.length > 0) {
+          cb.images = cb.fallbackImages.slice(0, 5);
         }
       });
 
@@ -681,6 +753,7 @@
       .map((design) => {
         const primaryColor = design.colors[design.colorOrder[0]];
         const heroImg = (primaryColor && primaryColor.images && primaryColor.images[0]) || '';
+        const heroFallback = (primaryColor && primaryColor.fallbackImages && primaryColor.fallbackImages[0]) || '';
         const statusBadge = design.hasPreOrder
           ? 'เปิดรับจองล่วงหน้า (Pre-order)'
           : 'พร้อมส่ง';
@@ -693,9 +766,13 @@
         const swatchesHtml = design.colorOrder
           .map((cCode) => {
             const c = design.colors[cCode];
+            const dotBorder = c.code === 'WHT' ? '#A08E83' : '#1D1C1A';
             return `
               <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-ivory border border-taupeLight text-[11px] font-medium text-ink">
-                <span class="w-3 h-3 rounded-full border border-taupe/70 shrink-0" style="background-color: ${escapeHtml(c.hex)};"></span>
+                <span
+                  class="kma-swatch-dot w-3 h-3 rounded-full shrink-0"
+                  style="background-color: ${escapeHtml(c.hex)}; border: 1px solid ${dotBorder};"
+                ></span>
                 <span>${escapeHtml(c.label)}</span>
               </span>
             `;
@@ -706,30 +783,40 @@
           <article
             data-action="open-design"
             data-design="${escapeHtml(design.designKey)}"
-            class="cursor-pointer group bg-white rounded-3xl border border-taupeLight overflow-hidden shadow-art hover:border-taupe transition flex flex-col"
+            class="cursor-pointer group bg-white rounded-[28px] overflow-hidden shadow-art hover:shadow-artHover hover:-translate-y-0.5 transition-all duration-300 flex flex-col"
           >
-            <!-- Clean White Image Canvas preserving aspect ratio -->
-            <div class="relative bg-white p-4 sm:p-5 border-b border-taupeLight/60 flex items-center justify-center aspect-[4/4]">
+            <!-- Borderless Full-Bleed Gallery Image Stage -->
+            <div
+              data-img-stage="1"
+              class="relative bg-gradient-to-b from-white via-white to-ivory/50 aspect-[4/5] sm:aspect-square flex items-center justify-center overflow-hidden"
+            >
+              <span class="kma-preorder-pill absolute top-3.5 left-3.5 z-10 px-3 py-1 rounded-full text-[11px] font-medium shadow-xs">
+                ${escapeHtml(statusBadge)}
+              </span>
+
               ${
                 heroImg
                   ? `<img
                       src="${escapeHtml(heroImg)}"
+                      data-fallback-src="${escapeHtml(heroFallback)}"
+                      data-placeholder-label="${escapeHtml(design.thaiName)}"
                       alt="${escapeHtml(design.thaiName)}"
-                      class="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300"
+                      onerror="window.kmaHandleImgError(this)"
+                      class="w-full h-full object-contain p-3 sm:p-4 group-hover:scale-[1.03] transition-transform duration-500 ease-out"
                       loading="lazy"
                     />`
-                  : `<div class="text-xs text-taupe font-serif tracking-widest">KMA STUDIO</div>`
+                  : `<div data-kma-placeholder="1" class="w-full h-full flex flex-col items-center justify-center text-center px-6 py-12 bg-ivory/70 text-taupe">
+                      <span class="font-serif text-base tracking-[0.18em] text-ink/70 uppercase">KMA STUDIO</span>
+                      <span class="text-[11px] text-taupe mt-1">${escapeHtml(design.thaiName)}</span>
+                    </div>`
               }
-              <span class="absolute top-3.5 left-3.5 px-3 py-1 rounded-full bg-blush text-ink text-[11px] font-medium">
-                ${escapeHtml(statusBadge)}
-              </span>
             </div>
 
-            <!-- Card Body -->
-            <div class="p-5 sm:p-6 flex-1 flex flex-col justify-between gap-4">
+            <!-- Gallery Card Body -->
+            <div class="p-5 sm:p-6 flex-1 flex flex-col justify-between gap-5">
               <div class="space-y-2.5">
                 <div>
-                  <p class="font-serif text-xs sm:text-sm tracking-[0.12em] uppercase text-taupe font-semibold">
+                  <p class="font-serif text-xs sm:text-sm tracking-[0.14em] uppercase text-taupe font-semibold">
                     ${escapeHtml(design.englishSubtitle)}
                   </p>
                   <h2 class="text-lg sm:text-xl font-semibold text-ink leading-snug mt-0.5">
@@ -748,19 +835,22 @@
                 </div>
               </div>
 
-              <div class="pt-3 border-t border-taupeLight/70 flex items-center justify-between gap-3">
+              <div class="pt-4 border-t border-taupeLight/60 flex items-center justify-between gap-3">
                 <div>
                   <div class="text-[11px] text-taupe">ราคา</div>
-                  <div class="text-base sm:text-lg font-semibold text-ink">${escapeHtml(priceLabel)}</div>
+                  <div class="text-lg font-semibold text-ink leading-tight">${escapeHtml(priceLabel)}</div>
                 </div>
 
                 <button
                   type="button"
                   data-action="open-design"
                   data-design="${escapeHtml(design.designKey)}"
-                  class="px-4 py-2.5 rounded-xl bg-ink text-ivory text-xs sm:text-sm font-medium group-hover:opacity-90 active:scale-95 transition"
+                  class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-ink text-ivory text-xs sm:text-sm font-medium group-hover:opacity-90 active:scale-95 transition"
                 >
-                  ดูรายละเอียดสินค้า
+                  <span>ดูรายละเอียดสินค้า</span>
+                  <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
                 </button>
               </div>
             </div>
@@ -793,9 +883,11 @@
 
     const { design, colorBucket, selectedSku } = ctx;
     const images = colorBucket.images || [];
+    const fallbackImages = colorBucket.fallbackImages || [];
     const imgIdx = Math.min(Math.max(0, state.detailSelection.imageIndex), Math.max(0, images.length - 1));
     state.detailSelection.imageIndex = imgIdx;
     const activeImg = images[imgIdx] || '';
+    const activeFallback = fallbackImages[imgIdx] || '';
 
     const statusBadge =
       selectedSku && selectedSku.Sale_Mode === 'IN_STOCK'
@@ -804,11 +896,16 @@
           : `พร้อมส่ง (คงเหลือ ${selectedSku.Stock_Qty} ชิ้น)`
         : 'เปิดรับจองล่วงหน้า (Pre-order)';
 
-    // Color Pills
+    // Color Pills (with forced-color-adjust: none swatch dots)
     const colorPillsHtml = design.colorOrder
       .map((cCode) => {
         const c = design.colors[cCode];
         const isActive = cCode === colorBucket.code;
+        const dotBorder = isActive
+          ? '#FAF7F2'
+          : c.code === 'WHT'
+          ? '#A08E83'
+          : '#1D1C1A';
         return `
           <button
             type="button"
@@ -821,8 +918,8 @@
             }"
           >
             <span
-              class="w-4 h-4 rounded-full border shrink-0"
-              style="background-color: ${escapeHtml(c.hex)}; border-color: ${isActive ? '#FAF7F2' : '#A08E83'};"
+              class="kma-swatch-dot w-4 h-4 rounded-full shrink-0"
+              style="background-color: ${escapeHtml(c.hex)}; border: 1.5px solid ${dotBorder};"
             ></span>
             <span>${escapeHtml(c.label)}</span>
           </button>
@@ -864,7 +961,7 @@
         .join('');
     }
 
-    // Thumbnail Strip (5 V10 images)
+    // Thumbnail Strip (5 V10 images with defensive onerror fallback)
     const thumbsHtml =
       images.length > 1
         ? `
@@ -876,12 +973,21 @@
                     type="button"
                     data-action="detail-thumb"
                     data-index="${i}"
+                    data-img-stage="1"
                     aria-label="ดูภาพที่ ${i + 1}"
-                    class="rounded-xl bg-white p-1 border-2 aspect-square overflow-hidden transition ${
+                    class="rounded-xl bg-white p-1 border-2 aspect-square overflow-hidden flex items-center justify-center transition ${
                       i === imgIdx ? 'border-ink' : 'border-taupeLight hover:border-taupe'
                     }"
                   >
-                    <img src="${escapeHtml(url)}" alt="${escapeHtml(design.thaiName)} ภาพที่ ${i + 1}" class="w-full h-full object-contain" loading="lazy" />
+                    <img
+                      src="${escapeHtml(url)}"
+                      data-fallback-src="${escapeHtml(fallbackImages[i] || '')}"
+                      data-placeholder-label="${i + 1}"
+                      alt="${escapeHtml(design.thaiName)} ภาพที่ ${i + 1}"
+                      onerror="window.kmaHandleImgError(this)"
+                      class="w-full h-full object-contain"
+                      loading="lazy"
+                    />
                   </button>
                 `
               )
@@ -911,20 +1017,23 @@
           <div
             id="detail-gallery-viewport"
             data-gallery-count="${images.length}"
-            class="relative rounded-3xl bg-white border border-taupeLight p-3 sm:p-5 shadow-art overflow-hidden touch-pan-y"
+            class="relative rounded-[28px] bg-white p-3 sm:p-5 shadow-art overflow-hidden touch-pan-y"
           >
-            <div class="relative aspect-square flex items-center justify-center bg-white">
+            <div data-img-stage="1" class="relative aspect-square flex items-center justify-center bg-white">
               ${
                 activeImg
                   ? `<img
                       id="detail-hero-img"
                       data-action="open-lightbox"
                       src="${escapeHtml(activeImg)}"
+                      data-fallback-src="${escapeHtml(activeFallback)}"
+                      data-placeholder-label="${escapeHtml(design.thaiName)}"
                       alt="${escapeHtml(design.thaiName)} (${escapeHtml(colorBucket.label)})"
+                      onerror="window.kmaHandleImgError(this)"
                       class="w-full h-full object-contain cursor-zoom-in select-none"
                       draggable="false"
                     />`
-                  : `<div class="text-sm text-taupe font-serif">KMA STUDIO</div>`
+                  : `<div data-kma-placeholder="1" class="text-sm text-taupe font-serif">KMA STUDIO</div>`
               }
             </div>
 
@@ -1163,10 +1272,16 @@
           .map(
             ({ sku, qty, thumb, lineTotal }) => `
               <div class="p-4 sm:p-5 flex items-start gap-3.5">
-                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-ivory border border-taupeLight p-1 shrink-0 flex items-center justify-center overflow-hidden">
+                <div data-img-stage="1" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-ivory border border-taupeLight p-1 shrink-0 flex items-center justify-center overflow-hidden">
                   ${
                     thumb
-                      ? `<img src="${escapeHtml(thumb)}" alt="${escapeHtml(sku.thaiDesignName)}" class="w-full h-full object-contain" />`
+                      ? `<img
+                          src="${escapeHtml(thumb)}"
+                          data-placeholder-label="KMA"
+                          alt="${escapeHtml(sku.thaiDesignName)}"
+                          onerror="window.kmaHandleImgError(this)"
+                          class="w-full h-full object-contain"
+                        />`
                       : `<span class="text-[10px] text-taupe font-serif">KMA</span>`
                   }
                 </div>
@@ -1443,10 +1558,10 @@
     } (${getFulfillmentLabel(state.customer.fulfillmentType)})`;
 
     const qrImg = $('payment-qr-img');
-    qrImg.src = state.settings.QR_Image_URL || CONFIG.FALLBACK_QR_IMAGE || 'images/sys-qr-pay.png';
+    qrImg.src = normalizeImageUrl(state.settings.QR_Image_URL || CONFIG.FALLBACK_QR_IMAGE || 'images/sys-qr-pay.png');
     qrImg.onerror = function () {
-      if (this.src.indexOf('images/sys-qr-pay.png') === -1) {
-        this.src = 'images/sys-qr-pay.png';
+      if (this.src.indexOf('sys-qr-pay.png') === -1) {
+        this.src = './images/sys-qr-pay.png';
       }
     };
 
@@ -1793,12 +1908,14 @@
   // ==================== MODALS: SIZE CHART & ARTWORK LIGHTBOX ====================
   function renderSizeChartModal() {
     const body = $('size-chart-body');
-    const imgSrc = String(CONFIG.SIZE_CHART_IMAGE || 'images/chart-shirt.jpg').trim();
+    const imgSrc = normalizeImageUrl(CONFIG.SIZE_CHART_IMAGE || 'images/chart-shirt.jpg');
     body.innerHTML = `
-      <div class="rounded-2xl bg-white border border-taupeLight p-2 sm:p-3">
+      <div data-img-stage="1" class="rounded-2xl bg-white border border-taupeLight p-2 sm:p-3">
         <img
           src="${escapeHtml(imgSrc)}"
+          data-placeholder-label="ตารางขนาดเสื้อ KMA STUDIO"
           alt="ตารางขนาดเสื้อ KMA STUDIO"
+          onerror="window.kmaHandleImgError(this)"
           class="w-full h-auto block rounded-xl object-contain"
         />
       </div>
@@ -1821,6 +1938,7 @@
     state.lightbox.open = true;
     state.lightbox.zoomed = false;
     state.lightbox.images = ctx.colorBucket.images;
+    state.lightbox.fallbackImages = ctx.colorBucket.fallbackImages || [];
     state.lightbox.index = state.detailSelection.imageIndex || 0;
     state.lightbox.title = `${ctx.design.thaiName} (${ctx.colorBucket.label})`;
 
@@ -1832,10 +1950,21 @@
     const lb = state.lightbox;
     const imgEl = $('lightbox-img');
     const url = lb.images[lb.index] || '';
+    const fbUrl = (lb.fallbackImages && lb.fallbackImages[lb.index]) || '';
 
     $('lightbox-caption').textContent = lb.title;
     $('lightbox-counter').textContent = `${lb.index + 1} / ${lb.images.length}`;
     $('btn-lightbox-zoom-toggle').textContent = lb.zoomed ? 'พอดีหน้าจอ' : 'ขยายภาพ';
+
+    imgEl.style.display = '';
+    imgEl.removeAttribute('data-img-step');
+    imgEl.setAttribute('data-fallback-src', fbUrl);
+    imgEl.setAttribute('data-placeholder-label', lb.title);
+    imgEl.onerror = function () {
+      window.kmaHandleImgError(this);
+    };
+    const oldPlaceholder = $('lightbox-scroll-area').querySelector('[data-kma-placeholder="1"]');
+    if (oldPlaceholder) oldPlaceholder.remove();
 
     imgEl.src = url;
     imgEl.alt = lb.title;
