@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="light only" />
+  <meta name="supported-color-schemes" content="light" />
+  <meta name="theme-color" content="#F5EEEE" />
+  <title>KMA STUDIO — Crafting Culture, Redefining Artistry</title>
+  <link rel="icon" type="image/png" href="images/brand-icon.png" />
+
+  <!-- Google Fonts: Cormorant Garamond & Noto Sans Thai -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Tailwind CSS via CDN (Zero-Build) — Silk Jade & Pearl V1.1 Tokens -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans Thai"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif']
+          },
+          colors: {
+            silkJade: '#83B5A0',
+            warmTaupe: '#A18F84',
+            pearlGrey: '#F5EEEE',
+            pearlBlush: '#FBEDEF',
+            dustyPearl: '#EDDFE1',
+            galleryWhite: '#FFFFFF',
+            deepInk: '#1D1C1A',
+            readingTaupe: '#655B56',
+            controlBorder: '#82766E',
+            pearlDivider: '#D9CED0'
+          },
+          boxShadow: {
+            gallery: '0 10px 30px rgba(29, 28, 26, 0.05)',
+            galleryHover: '0 16px 38px rgba(29, 28, 26, 0.09)',
+            sticky: '0 -8px 26px -10px rgba(29, 28, 26, 0.12)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --brand-primary: #83B5A0;
+      --brand-secondary: #A18F84;
+      --surface-canvas: #F5EEEE;
+      --surface-blush: #FBEDEF;
+      --surface-subtle: #EDDFE1;
+      --surface-gallery: #FFFFFF;
+      --text-primary: #1D1C1A;
+      --text-secondary: #655B56;
+      --border-control: #82766E;
+      --border-decorative: #D9CED0;
+      color-scheme: light only;
+    }
+
+    :root, html, body {
+      color-scheme: light only;
+      background-color: #F5EEEE;
+      color: #1D1C1A;
+    }
+
+    html, body {
+      font-family: 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-font-smoothing: antialiased;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    /* Prevent iOS LINE/Safari auto-zoom on form focus */
+    input, textarea, select {
+      font-size: 16px;
+    }
+
+    /* Strict forced-color-adjust locks so Android/Samsung/LINE dark mode never inverts logo or swatches */
+    .kma-light-lock {
+      forced-color-adjust: none;
+    }
+
+    .kma-swatch-dot {
+      forced-color-adjust: none;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Art Gallery (A) + Heritage Transition (C) Hero Surface */
+    .kma-gallery-hero {
+      background: linear-gradient(135deg, #FFFFFF 0%, #FBEDEF 58%, #F5EEEE 100%);
+      border: 1px solid #D9CED0;
+      box-shadow: 0 10px 30px rgba(29, 28, 26, 0.04);
+      forced-color-adjust: none;
+    }
+
+    /* Neutral translucent status badge on gallery artwork */
+    .kma-status-pill {
+      background: rgba(255, 255, 255, 0.95);
+      color: #1D1C1A;
+      border: 1px solid #D9CED0;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      forced-color-adjust: none;
+    }
+
+    /* Primary CTA in Silk Jade (#83B5A0) ALWAYS paired with Deep Ink (#1D1C1A) text & crisp border (7.36:1 contrast) */
+    .kma-btn-jade {
+      background-color: #83B5A0;
+      color: #1D1C1A;
+      border: 1px solid #1D1C1A;
+      forced-color-adjust: none;
+    }
+    .kma-btn-jade:hover:not(:disabled) {
+      filter: brightness(0.96);
+    }
+
+    .pb-safe {
+      padding-bottom: calc(0.875rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .kma-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .kma-scroll::-webkit-scrollbar-track {
+      background: #EDDFE1;
+      border-radius: 9999px;
+    }
+    .kma-scroll::-webkit-scrollbar-thumb {
+      background: #A18F84;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-pearlGrey text-deepInk selection:bg-pearlBlush selection:text-deepInk flex flex-col">
+
+  <!-- Toast Notification (LINE/FB WebView Safe) -->
+  <div id="toast-container" class="fixed top-4 inset-x-4 z-50 flex flex-col items-center gap-2 pointer-events-none"></div>
+
+  <!-- Mock Mode Preview Banner (Only shown when MOCK_MODE is true) -->
+  <div id="mock-banner" class="hidden bg-deepInk text-galleryWhite text-[13px] py-1.5 px-4 text-center">
+    โหมดทดสอบออฟไลน์ (Mock Mode) — คำสั่งซื้อจะไม่ถูกบันทึกลง Google Sheet
+  </div>
+
+  <!-- Art Gallery Sticky Header (Clauses 21–24) -->
+  <header class="kma-light-lock sticky top-0 z-30 bg-galleryWhite/95 backdrop-blur border-b border-pearlDivider">
+    <div class="max-w-4xl mx-auto px-4 py-3 sm:py-3.5 flex items-center justify-between gap-3">
+      <button
+        id="btn-brand-home"
+        type="button"
+        class="flex items-center gap-3 sm:gap-3.5 min-w-0 text-left focus:outline-none py-0.5"
+        aria-label="กลับไปชมคอลเลกชัน KMA STUDIO"
+      >
+        <img
+          src="./images/brand-logo.png"
+          alt="KMA STUDIO"
+          class="kma-light-lock h-10 sm:h-12 w-auto object-contain shrink-0 block"
+          onerror="if(!this.dataset.fb){this.dataset.fb='1';this.src='./images/brand-icon.png';}"
+        />
+        <div class="min-w-0">
+          <div class="font-serif text-[26px] sm:text-[30px] font-semibold tracking-[0.08em] text-deepInk leading-[1.1]">
+            KMA STUDIO
+          </div>
+          <div class="font-serif italic text-[14px] sm:text-[15px] font-medium text-readingTaupe leading-snug mt-0.5">
+            Crafting Culture, Redefining Artistry
+          </div>
+        </div>
+      </button>
+
+      <div class="flex items-center shrink-0">
+        <button
+          id="btn-header-cart"
+          type="button"
+          class="relative min-h-[44px] min-w-[44px] inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-controlBorder bg-galleryWhite text-deepInk text-[14px] font-medium hover:bg-pearlGrey active:scale-95 transition"
+          aria-label="ดูตะกร้าสินค้า"
+        >
+          <svg class="w-5 h-5 text-deepInk shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <span class="hidden sm:inline">ตะกร้าสินค้า</span>
+          <span
+            id="header-cart-badge"
+            class="hidden min-w-[20px] h-5 px-1.5 rounded-full bg-silkJade text-deepInk text-[12px] font-semibold tabular-nums inline-flex items-center justify-center border border-deepInk/70"
+          >0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Checkout Progress Indicator (VISIBLE IN CHECKOUT STEPS 1–4 ONLY, NO TRUNCATION) -->
+    <nav id="checkout-progress-nav" aria-label="ขั้นตอนการสั่งซื้อ" class="hidden border-t border-pearlDivider bg-pearlGrey/70">
+      <div class="max-w-4xl mx-auto px-3 sm:px-4 py-2.5">
+        <ol id="step-indicator" class="grid grid-cols-4 gap-1.5 sm:gap-2 text-[12px] sm:text-[13px] font-medium">
+          <li data-checkout-step="1" class="flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 py-1.5 rounded-xl text-center">
+            <span class="step-num w-5 h-5 rounded-full text-[11px] font-semibold tabular-nums flex items-center justify-center shrink-0">1</span>
+            <span>ตะกร้า</span>
+          </li>
+          <li data-checkout-step="2" class="flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 py-1.5 rounded-xl text-center">
+            <span class="step-num w-5 h-5 rounded-full text-[11px] font-semibold tabular-nums flex items-center justify-center shrink-0">2</span>
+            <span>ข้อมูล</span>
+          </li>
+          <li data-checkout-step="3" class="flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 py-1.5 rounded-xl text-center">
+            <span class="step-num w-5 h-5 rounded-full text-[11px] font-semibold tabular-nums flex items-center justify-center shrink-0">3</span>
+            <span>ชำระเงิน</span>
+          </li>
+          <li data-checkout-step="4" class="flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 py-1.5 rounded-xl text-center">
+            <span class="step-num w-5 h-5 rounded-full text-[11px] font-semibold tabular-nums flex items-center justify-center shrink-0">4</span>
+            <span>ยืนยัน</span>
+          </li>
+        </ol>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main id="main-container" class="flex-1 w-full max-w-4xl mx-auto px-4 pt-6 pb-36">
+
+    <!-- Loading View -->
+    <section id="view-loading" class="py-20 text-center space-y-4">
+      <div class="w-9 h-9 mx-auto rounded-full border-2 border-pearlDivider border-t-deepInk animate-spin"></div>
+      <p class="text-[15px] text-readingTaupe">กำลังเตรียมคอลเลกชัน…</p>
+    </section>
+
+    <!-- Store Closed / Empty / Error View -->
+    <section id="view-closed" class="hidden py-12 max-w-lg mx-auto">
+      <div class="bg-galleryWhite rounded-2xl border border-pearlDivider p-6 sm:p-8 text-center shadow-gallery space-y-3.5">
+        <div class="w-12 h-12 mx-auto rounded-full bg-dustyPearl text-deepInk flex items-center justify-center">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h2 id="closed-title" class="text-[20px] sm:text-[22px] font-semibold text-deepInk leading-[1.4]">ปิดรับคำสั่งซื้อชั่วคราว</h2>
+        <p id="closed-message" class="text-[15px] text-readingTaupe leading-[1.65]">
+          ขอบคุณที่สนใจผลงานของเรา ติดตามการเปิดรับคำสั่งซื้อครั้งถัดไปผ่านช่องทางของ KMA STUDIO
+        </p>
+        <div id="closed-retry-wrap" class="pt-1">
+          <button
+            id="btn-retry-load"
+            type="button"
+            class="kma-btn-jade min-h-[44px] inline-flex items-center justify-center px-6 py-2.5 rounded-xl text-[15px] font-semibold transition"
+          >
+            ลองอีกครั้ง
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 1: COLLECTION CATALOG ==================== -->
+    <section id="view-catalog" class="hidden space-y-8">
+      <!-- Editorial Art Gallery + Heritage Transition Hero -->
+      <div class="kma-gallery-hero rounded-[28px] px-6 py-9 sm:px-10 sm:py-12 relative overflow-hidden">
+        <!-- Subtle Warm Taupe Heritage Line-Art Flourish (Top Right) -->
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 260 220"
+          fill="none"
+          class="pointer-events-none select-none absolute -top-4 -right-6 w-48 sm:w-64 h-auto opacity-30"
+        >
+          <path
+            d="M250 18C210 18 186 42 172 78C158 114 134 138 96 144C128 116 142 84 148 48C152 24 176 8 212 10"
+            stroke="#A18F84"
+            stroke-width="1.35"
+            stroke-linecap="round"
+          />
+          <path
+            d="M252 54C224 58 202 78 188 110C174 142 146 168 104 176C146 176 184 156 208 124C224 102 238 88 256 84"
+            stroke="#A18F84"
+            stroke-width="1.15"
+            stroke-linecap="round"
+          />
+          <circle cx="100" cy="144" r="3" fill="#A18F84" opacity="0.7" />
+        </svg>
+
+        <!-- Subtle Warm Taupe Heritage Line-Art Flourish (Bottom Left) -->
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 220 150"
+          fill="none"
+          class="pointer-events-none select-none absolute -bottom-6 -left-6 w-40 sm:w-52 h-auto opacity-25"
+        >
+          <path
+            d="M12 138C46 132 74 112 92 80C106 54 128 36 164 32C132 52 114 82 104 114C96 136 74 146 38 144"
+            stroke="#A18F84"
+            stroke-width="1.25"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        <div class="relative z-10 max-w-xl space-y-3">
+          <div class="inline-flex items-center gap-2.5">
+            <span class="w-6 h-px bg-warmTaupe"></span>
+            <p class="font-serif text-[12px] sm:text-[13px] font-semibold tracking-[0.12em] uppercase text-readingTaupe">
+              KMA STUDIO · OFFICIAL COLLECTION
+            </p>
+          </div>
+          <h1 class="text-[26px] sm:text-[36px] font-semibold text-deepInk leading-[1.4]">
+            ค้นพบศิลปะไทยในมุมมองใหม่
+          </h1>
+          <p class="text-[15px] sm:text-[16px] font-normal text-readingTaupe leading-[1.65] max-w-lg">
+            เคารพรากเดิม กล้าเล่นกับขนบ และสนุกกับการสร้างสรรค์ในแบบของเรา
+          </p>
+        </div>
+      </div>
+
+      <!-- 2 Gallery-Style Design Cards Grid -->
+      <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-7"></div>
+    </section>
+
+    <!-- ==================== VIEW 2: PRODUCT DETAIL ==================== -->
+    <section id="view-detail" class="hidden space-y-6">
+      <div>
+        <button
+          id="btn-back-to-collection"
+          type="button"
+          class="min-h-[44px] inline-flex items-center gap-2 text-[15px] font-medium text-deepInk hover:text-readingTaupe transition"
+        >
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          <span>กลับไปชมคอลเลกชัน</span>
+        </button>
+      </div>
+
+      <div id="detail-content"></div>
+    </section>
+
+    <!-- ==================== VIEW 3 (CHECKOUT STEP 1): SHOPPING CART ==================== -->
+    <section id="view-cart" class="hidden max-w-2xl mx-auto space-y-5">
+      <div class="flex flex-wrap items-baseline justify-between gap-3">
+        <div>
+          <h2 class="text-[24px] sm:text-[28px] font-semibold text-deepInk leading-[1.35]">ตะกร้าสินค้า</h2>
+          <p class="text-[13px] sm:text-[14px] text-readingTaupe mt-1">ตรวจสอบรายการ สี ขนาด และจำนวนสินค้าของคุณ</p>
+        </div>
+        <button
+          id="btn-cart-continue-shopping"
+          type="button"
+          class="min-h-[44px] inline-flex items-center text-[14px] sm:text-[15px] font-medium text-deepInk underline underline-offset-4 decoration-controlBorder hover:decoration-deepInk"
+        >
+          เลือกซื้อเพิ่มเติม
+        </button>
+      </div>
+
+      <div id="cart-page-body" class="bg-galleryWhite rounded-2xl border border-pearlDivider shadow-gallery overflow-hidden"></div>
+
+      <div id="cart-page-summary" class="hidden bg-galleryWhite rounded-2xl border border-pearlDivider p-5 sm:p-6 shadow-gallery space-y-4">
+        <div class="flex items-baseline justify-between gap-3">
+          <div>
+            <div class="text-[15px] sm:text-[16px] font-medium text-deepInk">ยอดรวมสินค้า</div>
+            <div class="text-[13px] sm:text-[14px] text-readingTaupe mt-0.5">
+              ยังไม่รวมค่าจัดส่ง คุณสามารถเลือกวิธีรับสินค้าในขั้นตอนถัดไป
+            </div>
+          </div>
+          <div id="cart-page-subtotal" class="text-[20px] sm:text-[22px] font-semibold text-deepInk tabular-nums shrink-0">0 บาท</div>
+        </div>
+
+        <button
+          id="btn-cart-to-customer"
+          type="button"
+          class="kma-btn-jade w-full min-h-[48px] py-3 px-5 rounded-xl text-[15px] sm:text-[16px] font-semibold active:scale-[0.99] transition"
+        >
+          ถัดไป: ข้อมูลการสั่งซื้อ
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 4 (CHECKOUT STEP 2): CUSTOMER INFORMATION ==================== -->
+    <section id="view-customer" class="hidden max-w-2xl mx-auto space-y-5">
+      <div class="space-y-1">
+        <h2 class="text-[24px] sm:text-[28px] font-semibold text-deepInk leading-[1.35]">ข้อมูลการสั่งซื้อ</h2>
+        <p class="text-[14px] sm:text-[15px] text-readingTaupe leading-relaxed">
+          กรอกข้อมูลสำหรับการติดต่อ รับสินค้า และออกเอกสารยืนยันคำสั่งซื้อ
+        </p>
+        <p class="text-[13px] text-readingTaupe">
+          ช่องที่มีเครื่องหมาย <span class="text-rose-800 font-semibold">*</span> จำเป็นต้องกรอก
+        </p>
+      </div>
+
+      <!-- Delivery Method -->
+      <div class="bg-galleryWhite rounded-2xl border border-pearlDivider p-5 sm:p-6 shadow-gallery space-y-4">
+        <div>
+          <h3 class="text-[16px] font-semibold text-deepInk">วิธีรับสินค้า <span class="text-rose-800">*</span></h3>
+          <p class="text-[13px] sm:text-[14px] text-readingTaupe mt-0.5">เลือกวิธีรับสินค้าที่สะดวกสำหรับคุณ</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" role="radiogroup" aria-label="วิธีรับสินค้า">
+          <label
+            id="fulfill-card-pickup"
+            class="cursor-pointer rounded-xl border-2 border-deepInk bg-pearlBlush/60 p-4 flex items-start gap-3 transition"
+          >
+            <input type="radio" name="fulfillment" value="STUDIO_PICKUP" class="mt-1 w-4 h-4 accent-deepInk" checked />
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-semibold text-[15px] text-deepInk">รับเองที่ KMA STUDIO</span>
+                <span class="text-[12px] font-semibold text-deepInk bg-galleryWhite border border-pearlDivider px-2.5 py-0.5 rounded-full tabular-nums">0 บาท</span>
+              </div>
+              <p class="text-[13px] text-readingTaupe mt-1">ไม่มีค่าจัดส่ง</p>
+            </div>
+          </label>
+
+          <label
+            id="fulfill-card-delivery"
+            class="cursor-pointer rounded-xl border border-controlBorder bg-galleryWhite p-4 flex items-start gap-3 transition"
+          >
+            <input type="radio" name="fulfillment" value="DELIVERY" class="mt-1 w-4 h-4 accent-deepInk" />
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-semibold text-[15px] text-deepInk">จัดส่งพัสดุ</span>
+                <span id="delivery-fee-pill" class="text-[12px] font-semibold text-deepInk bg-pearlGrey border border-pearlDivider px-2.5 py-0.5 rounded-full tabular-nums">—</span>
+              </div>
+              <p id="delivery-fee-hint" class="text-[13px] text-readingTaupe mt-1">จัดส่งไปยังที่อยู่ที่คุณระบุ</p>
+            </div>
+          </label>
+        </div>
+
+        <!-- Conditional Shipping Address -->
+        <div id="shipping-address-wrapper" class="hidden pt-1 space-y-1.5">
+          <label for="input-shipping-address" class="block text-[14px] sm:text-[15px] font-medium text-deepInk">
+            ที่อยู่จัดส่ง <span class="text-rose-800">*</span>
+          </label>
+          <textarea
+            id="input-shipping-address"
+            rows="3"
+            placeholder="บ้านเลขที่ หมู่ ซอย ถนน แขวง/ตำบล เขต/อำเภอ จังหวัด รหัสไปรษณีย์"
+            class="w-full rounded-xl border border-controlBorder bg-galleryWhite px-3.5 py-2.5 text-[16px] text-deepInk placeholder:text-readingTaupe/70 focus:outline-none focus:ring-2 focus:ring-silkJade focus:border-deepInk"
+          ></textarea>
+          <p id="err-shipping-address" class="hidden text-[13px] text-rose-800 font-medium"></p>
+        </div>
+      </div>
+
+      <!-- Customer Contact Form -->
+      <div class="bg-galleryWhite rounded-2xl border border-pearlDivider p-5 sm:p-6 shadow-gallery space-y-4">
+        <div class="space-y-4">
+          <div class="space-y-1.5">
+            <label for="input-customer-name" class="block text-[14px] sm:text-[15px] font-medium text-deepInk">
+              ชื่อ–นามสกุลผู้สั่งซื้อ <span class="text-rose-800">*</span>
+            </label>
+            <input
+              id="input-customer-name"
+              type="text"
+              autocomplete="name"
+              placeholder="ชื่อ–นามสกุลสำหรับออกเอกสาร"
+              class="w-full min-h-[44px] rounded-xl border border-controlBorder bg-galleryWhite px-3.5 py-2.5 text-[16px] text-deepInk placeholder:text-readingTaupe/70 focus:outline-none focus:ring-2 focus:ring-silkJade focus:border-deepInk"
+            />
+            <p id="err-customer-name" class="hidden text-[13px] text-rose-800 font-medium"></p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1.5">
+              <label for="input-phone" class="block text-[14px] sm:text-[15px] font-medium text-deepInk">
+                เบอร์โทรศัพท์ <span class="text-rose-800">*</span>
+              </label>
+              <input
+                id="input-phone"
+                type="tel"
+                inputmode="tel"
+                autocomplete="tel"
+                placeholder="08X-XXX-XXXX"
+                class="w-full min-h-[44px] rounded-xl border border-controlBorder bg-galleryWhite px-3.5 py-2.5 text-[16px] text-deepInk placeholder:text-readingTaupe/70 focus:outline-none focus:ring-2 focus:ring-silkJade focus:border-deepInk"
+              />
+              <p id="err-phone" class="hidden text-[13px] text-rose-800 font-medium"></p>
+            </div>
+
+            <div class="space-y-1.5">
+              <label for="input-email" class="block text-[14px] sm:text-[15px] font-medium text-deepInk">
+                อีเมลสำหรับรับเอกสาร <span class="text-rose-800">*</span>
+              </label>
+              <input
+                id="input-email"
+                type="email"
+                inputmode="email"
+                autocomplete="email"
+                placeholder="name@example.com"
+                class="w-full min-h-[44px] rounded-xl border border-controlBorder bg-galleryWhite px-3.5 py-2.5 text-[16px] text-deepInk placeholder:text-readingTaupe/70 focus:outline-none focus:ring-2 focus:ring-silkJade focus:border-deepInk"
+              />
+              <p class="text-[13px] text-readingTaupe">ใช้สำหรับเอกสารยืนยันคำสั่งซื้อและใบเสร็จรับเงิน</p>
+              <p id="err-email" class="hidden text-[13px] text-rose-800 font-medium"></p>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-pearlDivider grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1.5">
+              <label for="input-line-id" class="block text-[14px] sm:text-[15px] font-medium text-deepInk">
+                LINE ID <span class="text-[13px] font-normal text-readingTaupe">(ไม่บังคับ)</span>
+              </label>
+              <input
+                id="input-line-id"
+                type="text"
+                placeholder="ระบุหากสะดวกให้ติดต่อผ่าน LINE"
+                class="w-full min-h-[44px] rounded-xl border border-controlBorder bg-galleryWhite px-3.5 py-2.5 text-[16px] text-deepInk placeholder:text-readingTaupe/70 focus:outline-none focus:ring-2 focus:ring-silkJade focus:border-deepInk"
+              />
+            </div>
+
+            <div class="space-y-1.5">
+              <label for="input-camp-note" class="block text-[14px] sm:text-[15px] font-medium text-deepInk">
+                หมายเหตุเพิ่มเติม <span class="text-[13px] font-normal text-readingTaupe">(ไม่บังคับ)</span>
+              </label>
+              <input
+                id="input-camp-note"
+                type="text"
+                placeholder="ข้อมูลเพิ่มเติมเกี่ยวกับคำสั่งซื้อหรือการจัดส่ง (ถ้ามี)"
+                class="w-full min-h-[44px] rounded-xl border border-controlBorder bg-galleryWhite px-3.5 py-2.5 text-[16px] text-deepInk placeholder:text-readingTaupe/70 focus:outline-none focus:ring-2 focus:ring-silkJade focus:border-deepInk"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="bg-galleryWhite rounded-2xl border border-pearlDivider p-5 sm:p-6 shadow-gallery space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <h3 class="text-[16px] font-semibold text-deepInk">สรุปคำสั่งซื้อ</h3>
+          <button
+            id="btn-customer-edit-cart"
+            type="button"
+            class="min-h-[36px] px-2 text-[14px] font-medium text-deepInk underline underline-offset-4 decoration-controlBorder hover:decoration-deepInk"
+          >
+            แก้ไขตะกร้า
+          </button>
+        </div>
+
+        <div id="customer-summary-items" class="divide-y divide-pearlDivider text-[15px]"></div>
+
+        <div class="pt-3 border-t border-pearlDivider space-y-1.5 text-[15px]">
+          <div class="flex justify-between text-readingTaupe">
+            <span>ยอดรวมสินค้า</span>
+            <span id="customer-summary-subtotal" class="tabular-nums text-deepInk">0 บาท</span>
+          </div>
+          <div class="flex justify-between text-readingTaupe">
+            <span>ค่าจัดส่ง (<span id="customer-summary-fulfill">รับเองที่ KMA STUDIO</span>)</span>
+            <span id="customer-summary-shipping" class="tabular-nums text-deepInk">0 บาท</span>
+          </div>
+          <div class="pt-2.5 border-t border-pearlDivider flex justify-between items-baseline">
+            <span class="font-semibold text-deepInk">ยอดที่ต้องชำระ</span>
+            <span id="customer-summary-grand" class="text-[22px] sm:text-[24px] font-semibold text-deepInk tabular-nums">0 บาท</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deduplicated Dynamic Order Terms -->
+      <div class="bg-galleryWhite rounded-2xl border border-pearlDivider p-5 sm:p-6 shadow-gallery space-y-3.5">
+        <h3 class="text-[16px] font-semibold text-deepInk">เงื่อนไขการสั่งซื้อ</h3>
+        <div
+          id="dynamic-terms-box"
+          class="kma-scroll max-h-48 overflow-y-auto rounded-xl bg-pearlGrey border border-pearlDivider p-4 text-[14px] text-deepInk leading-relaxed space-y-2"
+        ></div>
+
+        <label class="flex items-start gap-3 pt-1 cursor-pointer select-none">
+          <input id="checkbox-accept-terms" type="checkbox" class="mt-0.5 w-5 h-5 rounded border-controlBorder accent-deepInk shrink-0" />
+          <span class="text-[15px] text-deepInk leading-snug">
+            ฉันได้ตรวจสอบรายการสินค้าและยอมรับเงื่อนไขการสั่งซื้อแล้ว <span class="text-rose-800 font-semibold">*</span>
+          </span>
+        </label>
+        <p id="err-accept-terms" class="hidden text-[13px] text-rose-800 font-medium"></p>
+      </div>
+
+      <!-- Step 2 Navigation -->
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-1">
+        <button
+          id="btn-customer-back"
+          type="button"
+          class="sm:col-span-5 min-h-[48px] py-3 px-4 rounded-xl border border-controlBorder bg-galleryWhite text-deepInk text-[15px] font-semibold hover:bg-pearlGrey transition order-2 sm:order-1"
+        >
+          กลับไปยังตะกร้าสินค้า
+        </button>
+        <button
+          id="btn-customer-next"
+          type="button"
+          class="kma-btn-jade sm:col-span-7 min-h-[48px] py-3 px-5 rounded-xl text-[15px] sm:text-[16px] font-semibold active:scale-[0.99] transition order-1 sm:order-2"
+        >
+          ถัดไป: ชำระเงิน
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 5 (CHECKOUT STEP 3): PAYMENT V1.1 (NO QR CODE) ==================== -->
+    <section id="view-payment" class="hidden max-w-2xl mx-auto space-y-5">
+      <div class="space-y-1">
+        <h2 class="text-[24px] sm:text-[28px] font-semibold text-deepInk leading-[1.35]">ชำระเงิน</h2>
+        <p class="text-[14px] sm:text-[15px] text-readingTaupe leading-relaxed">
+          ตรวจสอบยอด โอนเงินตามข้อมูลบัญชีด้านล่าง และแนบหลักฐานการชำระเงินเพื่อส่งคำสั่งซื้อ
+        </p>
+      </div>
+
+      <!-- Amount Box -->
+      <div class="rounded-2xl bg-galleryWhite border border-pearlDivider p-5 sm:p-6 shadow-gallery text-center space-y-3">
+        <div class="space-y-1">
+          <p class="text-[14px] font-medium text-readingTaupe">ยอดที่ต้องชำระ</p>
+          <p id="payment-grand-total" class="text-[28px] sm:text-[32px] font-semibold text-deepInk tabular-nums leading-tight">0 บาท</p>
+          <p id="payment-breakdown" class="text-[13px] sm:text-[14px] text-readingTaupe tabular-nums"></p>
+        </div>
+
+        <button
+          id="btn-copy-amount"
+          type="button"
+          class="min-h-[44px] inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-pearlGrey text-deepInk text-[14px] sm:text-[15px] font-semibold border border-controlBorder hover:bg-dustyPearl active:scale-95 transition"
+        >
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          <span id="btn-copy-amount-label">คัดลอกยอดโอน</span>
+        </button>
+      </div>
+
+      <!-- Bank Channel Section (Payment Reference Card + Copyable Bank Details — NO QR REFERENCES) -->
+      <div class="bg-galleryWhite rounded-2xl border border-pearlDivider p-5 sm:p-6 shadow-gallery space-y-4">
+        <div class="space-y-1">
+          <h3 class="text-[18px] font-semibold text-deepInk">ช่องทางการชำระเงิน</h3>
+          <p class="text-[13px] sm:text-[14px] text-readingTaupe">โอนเงินตามข้อมูลบัญชีที่แสดงด้านล่าง</p>
+        </div>
+
+        <div class="rounded-2xl bg-pearlGrey/70 border border-pearlDivider p-3 sm:p-4 flex justify-center">
+          <img
+            id="payment-ref-card-img"
+            src="./images/sys-qr-pay.png"
+            alt="ข้อมูลบัญชีสำหรับโอนเงิน KMA STUDIO"
+            class="w-full max-w-md h-auto rounded-xl object-contain bg-galleryWhite block"
+          />
+        </div>
+
+        <div class="rounded-xl bg-pearlGrey border border-pearlDivider p-4 space-y-3">
+          <div class="text-[13px] sm:text-[14px] font-medium text-readingTaupe">ข้อมูลบัญชีสำหรับโอนเงิน</div>
+          <p id="payment-bank-info" class="text-[15px] sm:text-[16px] font-medium text-deepInk leading-relaxed break-words select-all"></p>
+          <button
+            id="btn-copy-bank"
+            type="button"
+            class="w-full min-h-[44px] py-2.5 px-4 rounded-xl bg-galleryWhite border border-controlBorder text-deepInk text-[15px] font-semibold inline-flex items-center justify-center gap-2 hover:bg-dustyPearl/60 active:scale-[0.99] transition"
+          >
+            <svg class="w-4 h-4 text-deepInk shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span id="btn-copy-bank-label">คัดลอกเลขบัญชี</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Slip Upload & Transfer Timestamp -->
+      <div class="bg-galleryWhite rounded-2xl border border-pearlDivider p-5 sm:p-6 shadow-gallery space-y-4">
+        <div class="space-y-1">
+          <h3 class="text-[18px] font-semibold text-deepInk">แนบหลักฐานการชำระเงิน</h3>
+          <p class="text-[13px] sm:text-[14px] text-readingTaupe">กรุณาระบุวันที่และเวลาตามหลักฐานการโอนเงิน</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1.5">
+            <label for="input-transfer-date" class="block text-[14px] sm:text-[15px] font-medium text-deepInk">
+              วันที่โอน <span class="text-rose-800">*</span>
+            </label>
+            <input
+              id="input-transfer-date"
+              type="date"
+              class="w-full min-h-[44px] rounded-xl border border-controlBorder bg-galleryWhite px-3 py-2.5 text-[16px] text-deepInk focus:outline-none focus:ring-2 focus:ring-silkJade focus:border-deepInk"
+            />
+          </div>
+          <div class="space-y-1.5">
+            <label for="input-transfer-time" class="block text-[14px] sm:text-[15px] font-medium text-deepInk">
+              เวลาที่โอน <span class="text-rose-800">*</span>
+            </label>
+            <input
+              id="input-transfer-time"
+              type="time"
+              class="w-full min-h-[44px] rounded-xl border border-controlBorder bg-galleryWhite px-3 py-2.5 text-[16px] text-deepInk focus:outline-none focus:ring-2 focus:ring-silkJade focus:border-deepInk"
+            />
+          </div>
+        </div>
+        <p id="err-transfer-datetime" class="hidden text-[13px] text-rose-800 font-medium"></p>
+
+        <div class="space-y-2">
+          <label for="input-slip-file" class="block text-[14px] sm:text-[15px] font-medium text-deepInk">
+            สลิปโอนเงิน <span class="text-rose-800">*</span>
+          </label>
+
+          <label
+            for="input-slip-file"
+            id="slip-dropzone"
+            class="block cursor-pointer rounded-2xl border-2 border-dashed border-controlBorder bg-pearlGrey/70 hover:bg-pearlBlush/40 p-5 text-center transition"
+          >
+            <input id="input-slip-file" type="file" accept="image/jpeg,image/png,image/*" class="sr-only" />
+
+            <div id="slip-empty-state" class="space-y-2">
+              <div class="w-11 h-11 mx-auto rounded-full bg-galleryWhite border border-pearlDivider text-deepInk flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+              </div>
+              <p class="text-[15px] font-semibold text-deepInk">แตะเพื่อเลือกรูปสลิป</p>
+              <p class="text-[13px] text-readingTaupe">รองรับไฟล์ JPG / PNG</p>
+            </div>
+
+            <div id="slip-preview-state" class="hidden space-y-3">
+              <img
+                id="slip-preview-img"
+                src=""
+                alt="ตัวอย่างสลิปโอนเงิน"
+                class="max-h-72 mx-auto rounded-xl border border-pearlDivider shadow-xs object-contain bg-galleryWhite"
+              />
+              <div class="flex flex-wrap items-center justify-center gap-2 text-[13px]">
+                <span id="slip-size-info" class="px-3 py-1 rounded-full bg-pearlGrey text-deepInk border border-pearlDivider font-medium tabular-nums"></span>
+                <span class="px-3.5 py-1 rounded-full bg-galleryWhite text-deepInk border border-controlBorder font-semibold">เปลี่ยนรูป</span>
+              </div>
+            </div>
+          </label>
+          <p id="err-slip-file" class="hidden text-[13px] text-rose-800 font-medium"></p>
+        </div>
+      </div>
+
+      <!-- Semantic Submission Error Banner (Never instructs customer to transfer money again) -->
+      <div id="submit-error-box" role="alert" class="hidden rounded-2xl bg-rose-50 border border-rose-300 p-4 text-rose-950 space-y-1.5">
+        <div class="flex items-center gap-2 font-semibold text-[15px]">
+          <svg class="w-5 h-5 text-rose-800 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>ไม่สามารถยืนยันการส่งคำสั่งซื้อได้ในขณะนี้</span>
+        </div>
+        <p id="submit-error-text" class="text-[13px] sm:text-[14px] text-rose-900 leading-relaxed pl-7">
+          กรุณาตรวจสอบสถานะคำสั่งซื้อก่อนส่งอีกครั้ง หากไม่แน่ใจ ติดต่อ KMA STUDIO
+        </p>
+      </div>
+
+      <!-- Footer Note & Step 3 Navigation -->
+      <p class="text-[13px] sm:text-[14px] text-readingTaupe text-center">
+        หลังส่งคำสั่งซื้อ เราจะตรวจสอบหลักฐานการชำระเงินก่อนยืนยันยอด
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+        <button
+          id="btn-payment-back"
+          type="button"
+          class="sm:col-span-5 min-h-[48px] py-3 px-4 rounded-xl border border-controlBorder bg-galleryWhite text-deepInk text-[15px] font-semibold hover:bg-pearlGrey transition disabled:opacity-50 order-2 sm:order-1"
+        >
+          กลับไปยังข้อมูลการสั่งซื้อ
+        </button>
+        <button
+          id="btn-submit-order"
+          type="button"
+          class="kma-btn-jade sm:col-span-7 min-h-[48px] py-3 px-5 rounded-xl text-[15px] sm:text-[16px] font-semibold active:scale-[0.99] transition inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed order-1 sm:order-2"
+        >
+          <span id="btn-submit-spinner" class="hidden w-4 h-4 rounded-full border-2 border-deepInk/30 border-t-deepInk animate-spin shrink-0"></span>
+          <span id="btn-submit-label">ส่งคำสั่งซื้อและหลักฐานการชำระเงิน</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 6 (CHECKOUT STEP 4): ORDER CONFIRMATION ==================== -->
+    <section id="view-confirmation" class="hidden max-w-2xl mx-auto space-y-5">
+      <div class="bg-galleryWhite rounded-3xl border border-pearlDivider p-6 sm:p-8 shadow-gallery space-y-6">
+        <div class="text-center space-y-3">
+          <!-- Check icon strictly indicates Order Received ONLY -->
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pearlGrey border border-pearlDivider text-deepInk text-[13px] font-semibold">
+            <svg class="w-4 h-4 text-deepInk shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>ได้รับคำสั่งซื้อแล้ว</span>
+          </div>
+
+          <h2 class="text-[24px] sm:text-[28px] font-semibold text-deepInk leading-[1.35]">
+            ขอบคุณที่ร่วมเป็นส่วนหนึ่งของ KMA STUDIO
+          </h2>
+
+          <p class="text-[15px] sm:text-[16px] text-readingTaupe leading-[1.65] max-w-md mx-auto">
+            เราได้รับคำสั่งซื้อของคุณแล้ว กรุณาเก็บหมายเลขคำสั่งซื้อไว้สำหรับการติดต่อ
+          </p>
+        </div>
+
+        <!-- Prominent Order ID + Copy -->
+        <div class="rounded-2xl bg-pearlGrey border border-pearlDivider p-4 sm:p-5 text-center space-y-3">
+          <div class="text-[13px] sm:text-[14px] text-readingTaupe">หมายเลขคำสั่งซื้อ (Order ID)</div>
+          <div id="confirm-order-id" class="text-[22px] sm:text-[26px] font-semibold text-deepInk font-mono tabular-nums"></div>
+          <button
+            id="btn-copy-order-id"
+            type="button"
+            class="min-h-[44px] inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-galleryWhite border border-controlBorder text-[14px] font-semibold text-deepInk hover:bg-dustyPearl/50 active:scale-95 transition"
+          >
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span id="btn-copy-order-id-label">คัดลอกหมายเลขคำสั่งซื้อ</span>
+          </button>
+        </div>
+
+        <!-- Neutral Payment & Email Status Separation (Not reliant on brand colors) -->
+        <div class="rounded-2xl bg-pearlGrey/70 border border-pearlDivider p-4 sm:p-5 space-y-3.5 text-[14px] sm:text-[15px]">
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 text-readingTaupe shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <div class="font-semibold text-deepInk">สถานะการชำระเงิน</div>
+              <p class="text-readingTaupe mt-0.5 leading-relaxed">
+                ได้รับหลักฐานการชำระเงินแล้ว ขณะนี้อยู่ระหว่างการตรวจสอบยอด
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-pearlDivider flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 text-readingTaupe shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <div>
+              <div class="font-semibold text-deepInk">สถานะเอกสารทางอีเมล</div>
+              <p id="confirm-email-status-text" class="text-readingTaupe mt-0.5 leading-relaxed"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Details Snapshot -->
+        <div class="rounded-2xl bg-galleryWhite border border-pearlDivider p-4 sm:p-5 space-y-3">
+          <h3 class="text-[16px] font-semibold text-deepInk">รายละเอียดคำสั่งซื้อ</h3>
+          <div id="confirm-details" class="space-y-2 text-[14px] sm:text-[15px] text-deepInk"></div>
+        </div>
+
+        <!-- Optional PDF Link (Shown ONLY when valid order_pdf_url is returned) -->
+        <div id="confirm-pdf-wrapper" class="hidden">
+          <a
+            id="confirm-pdf-link"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full min-h-[48px] py-3 px-4 rounded-xl border border-controlBorder bg-galleryWhite text-deepInk text-[15px] font-semibold inline-flex items-center justify-center gap-2 hover:bg-pearlGrey transition"
+          >
+            <span>ดูเอกสารยืนยันคำสั่งซื้อ (PDF)</span>
+          </a>
+        </div>
+
+        <!-- Official KMA STUDIO Contact & Support Card -->
+        <div class="rounded-2xl bg-pearlBlush/55 border border-pearlDivider p-4 sm:p-5 space-y-3">
+          <div>
+            <h3 class="text-[16px] font-semibold text-deepInk">ติดต่อ KMA STUDIO</h3>
+            <p class="text-[13px] sm:text-[14px] text-readingTaupe mt-1 leading-relaxed">
+              สอบถามสถานะคำสั่งซื้อหรือแจ้งเปลี่ยนขนาดก่อนปิดรอบการผลิต กรุณาแจ้งหมายเลขคำสั่งซื้อผ่านช่องทางติดต่อของเรา
+            </p>
+          </div>
+          <ul class="space-y-2 text-[14px] sm:text-[15px] text-deepInk">
+            <li class="flex items-center justify-between gap-2">
+              <span class="text-readingTaupe">Email</span>
+              <a href="mailto:kmastudio.th@gmail.com" class="font-medium underline underline-offset-2">kmastudio.th@gmail.com</a>
+            </li>
+            <li class="flex items-center justify-between gap-2">
+              <span class="text-readingTaupe">Facebook</span>
+              <a href="https://www.facebook.com/KMAStudio.TH/" target="_blank" rel="noopener noreferrer" class="font-medium underline underline-offset-2">KMAStudio.TH</a>
+            </li>
+            <li class="flex items-center justify-between gap-2">
+              <span class="text-readingTaupe">LINE OA</span>
+              <a href="https://line.me/R/ti/p/@560rvliy" target="_blank" rel="noopener noreferrer" class="font-medium underline underline-offset-2">@560rvliy</a>
+            </li>
+          </ul>
+        </div>
+
+        <button
+          id="btn-new-order"
+          type="button"
+          class="kma-btn-jade w-full min-h-[48px] py-3 px-5 rounded-xl text-[15px] sm:text-[16px] font-semibold transition"
+        >
+          กลับไปชมคอลเลกชัน
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Global Footer -->
+  <footer id="global-footer" class="border-t border-pearlDivider bg-galleryWhite/70 mt-auto">
+    <div class="max-w-4xl mx-auto px-4 py-6 pb-28 sm:pb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-[13px] sm:text-[14px] text-readingTaupe">
+      <div class="font-semibold text-deepInk">ติดต่อ KMA STUDIO</div>
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+        <span>Email: <a href="mailto:kmastudio.th@gmail.com" class="text-deepInk font-medium underline underline-offset-2">kmastudio.th@gmail.com</a></span>
+        <span>Facebook: <a href="https://www.facebook.com/KMAStudio.TH/" target="_blank" rel="noopener noreferrer" class="text-deepInk font-medium underline underline-offset-2">KMAStudio.TH</a></span>
+        <span>LINE OA: <a href="https://line.me/R/ti/p/@560rvliy" target="_blank" rel="noopener noreferrer" class="text-deepInk font-medium underline underline-offset-2">@560rvliy</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Sticky Cart Bar (Shown ONLY on Catalog & Detail when Cart has items) -->
+  <div
+    id="sticky-cart-bar"
+    class="kma-light-lock hidden fixed bottom-0 inset-x-0 z-30 bg-galleryWhite/95 backdrop-blur border-t border-pearlDivider shadow-sticky"
+  >
+    <div class="max-w-4xl mx-auto px-4 pt-3 pb-safe flex items-center justify-between gap-3">
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-1.5 text-[13px] text-readingTaupe">
+          <span class="px-2 py-0.5 rounded-full bg-dustyPearl text-deepInk font-semibold tabular-nums">
+            <span id="sticky-item-count">0</span> ชิ้น
+          </span>
+          <span>ยอดรวมสินค้า (ยังไม่รวมค่าจัดส่ง)</span>
+        </div>
+        <div class="text-[20px] font-semibold text-deepInk tabular-nums leading-tight mt-0.5">
+          <span id="sticky-subtotal">0</span> <span class="text-[13px] font-normal text-readingTaupe">บาท</span>
+        </div>
+      </div>
+
+      <button
+        id="btn-sticky-view-cart"
+        type="button"
+        class="kma-btn-jade shrink-0 min-h-[44px] py-2.5 px-5 rounded-xl text-[15px] font-semibold active:scale-[0.98] transition"
+      >
+        ดูตะกร้าสินค้า
+      </button>
+    </div>
+  </div>
+
+  <!-- Size Chart Modal (Preserves Color, Size, Qty on Close) -->
+  <div
+    id="modal-size-chart"
+    class="hidden fixed inset-0 z-50 bg-deepInk/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4"
+  >
+    <div class="bg-galleryWhite w-full sm:max-w-xl rounded-t-3xl sm:rounded-2xl border border-pearlDivider max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-5 py-4 border-b border-pearlDivider flex items-center justify-between bg-pearlGrey shrink-0">
+        <div>
+          <h3 class="text-[17px] font-semibold text-deepInk">ตารางขนาดเสื้อ KMA STUDIO</h3>
+          <p class="text-[13px] text-readingTaupe">ขยายภาพเพื่อดูรายละเอียด</p>
+        </div>
+        <button
+          id="btn-close-size-chart"
+          type="button"
+          aria-label="ปิดตารางขนาด"
+          class="w-10 h-10 rounded-full bg-galleryWhite border border-controlBorder flex items-center justify-center text-deepInk hover:bg-dustyPearl"
+        >
+          ✕
+        </button>
+      </div>
+      <div id="size-chart-body" class="p-3 sm:p-5 overflow-auto kma-scroll bg-pearlGrey/50 pb-safe"></div>
+    </div>
+  </div>
+
+  <!-- Artwork Zoom Lightbox Modal -->
+  <div
+    id="modal-lightbox"
+    class="hidden fixed inset-0 z-50 bg-deepInk/90 backdrop-blur-xs flex flex-col"
+  >
+    <div class="px-4 py-3 flex items-center justify-between gap-3 text-galleryWhite shrink-0">
+      <div id="lightbox-caption" class="text-[14px] sm:text-[15px] font-medium truncate"></div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button
+          id="btn-lightbox-zoom-toggle"
+          type="button"
+          class="min-h-[40px] px-3.5 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-[13px] font-semibold text-galleryWhite transition"
+        >
+          ขยายภาพ
+        </button>
+        <button
+          id="btn-close-lightbox"
+          type="button"
+          aria-label="ปิดภาพขยาย"
+          class="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-galleryWhite text-sm"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <div id="lightbox-scroll-area" class="relative flex-1 overflow-auto flex items-center justify-center p-3 sm:p-6">
+      <img
+        id="lightbox-img"
+        src=""
+        alt=""
+        class="max-w-full max-h-full rounded-xl bg-galleryWhite object-contain transition-all duration-200 shadow-2xl"
+      />
+    </div>
+
+    <div id="lightbox-nav-bar" class="px-4 py-3 pb-safe flex items-center justify-center gap-4 shrink-0">
+      <button
+        id="btn-lightbox-prev"
+        type="button"
+        class="min-h-[44px] px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 text-galleryWhite text-[14px] font-medium transition"
+      >
+        ภาพก่อนหน้า
+      </button>
+      <span id="lightbox-counter" class="text-[13px] text-galleryWhite/85 font-medium tabular-nums">1 / 5</span>
+      <button
+        id="btn-lightbox-next"
+        type="button"
+        class="min-h-[44px] px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 text-galleryWhite text-[14px] font-medium transition"
+      >
+        ภาพถัดไป
+      </button>
+    </div>
+  </div>
+
+  <!-- Standard Scripts for Zero-Build & Offline Compatibility -->
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
